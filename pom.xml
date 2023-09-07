@@ -9,7 +9,7 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>spring boot starter for security   </description>
+    <description>spring boot starter for security</description>
     <url>https://github.com/gracerun/security</url>
 
     <modules>
