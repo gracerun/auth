@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>spring boot starter for security</description>
-    <url>https://github.com/gracerun/summer</url>
+    <url>https://github.com/gracerun/security</url>
 
     <modules>
         <module>security-authentication</module>
