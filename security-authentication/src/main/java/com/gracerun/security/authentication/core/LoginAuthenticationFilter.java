@@ -6,13 +6,11 @@ import com.gracerun.util.ValidationResult;
 import com.gracerun.util.ValidationUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,19 +26,16 @@ import java.io.InputStream;
  */
 @Slf4j
 @Setter
-public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class LoginAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private boolean postOnly = true;
     private ObjectMapper mapper = new ObjectMapper();
-    private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login",
-            HttpMethod.POST.name());
 
     public LoginAuthenticationFilter() {
-        super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
     }
 
     public LoginAuthenticationFilter(AuthenticationManager authenticationManager) {
-        super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
+        super(authenticationManager);
     }
 
     @Override

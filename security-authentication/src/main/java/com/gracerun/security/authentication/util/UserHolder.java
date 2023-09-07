@@ -1,16 +1,15 @@
 package com.gracerun.security.authentication.util;
 
-import com.gracerun.security.authentication.bean.UserDetail;
+import com.gracerun.security.authentication.bean.UserToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * 用户上下文获取工具
- *
- * @author adc
+ * 获取用户工具
+ * @author Tom
  * @version 1.0.0
- * @date 2020-07-31
+ * @date 2023/9/7
  */
 @Slf4j
 public abstract class UserHolder {
@@ -20,10 +19,10 @@ public abstract class UserHolder {
      *
      * @return
      */
-    public static UserDetail getCurrentUser() {
+    public static UserToken getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.info("{}", authentication);
-        return (UserDetail) authentication;
+        return (UserToken) authentication;
     }
 
 }

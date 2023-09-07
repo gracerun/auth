@@ -1,7 +1,7 @@
 package com.gracerun.security.authentication.core;
 
+import com.gracerun.security.authentication.bean.UserToken;
 import com.gracerun.security.authentication.constant.AuthCode;
-import com.gracerun.security.authentication.bean.UserDetail;
 import com.gracerun.security.authentication.util.ResponseUtil;
 import com.gracerun.security.authentication.util.UserHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -54,8 +54,8 @@ public class ExpirePasswordFilter extends GenericFilterBean {
             }
         }
 
-        UserDetail userContext = UserHolder.getCurrentUser();
-        if (userContext != null && userContext.isAuthenticated() && userContext.isExpireStatus()) {
+        UserToken userToken = UserHolder.getCurrentUser();
+        if (userToken != null && userToken.isAuthenticated() && userToken.isExpireStatus()) {
             ResponseUtil.writeJson(response, AuthCode.AUTH_EXPIRED, AuthCode.AUTH_EXPIRED_CN, null);
             return;
         }

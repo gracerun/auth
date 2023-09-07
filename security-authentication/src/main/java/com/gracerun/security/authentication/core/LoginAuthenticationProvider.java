@@ -1,34 +1,32 @@
 package com.gracerun.security.authentication.core;
 
+import com.gracerun.log.annotation.Logging;
 import com.gracerun.security.authentication.bean.LoginRequest;
-import com.gracerun.security.authentication.bean.UserDetail;
-import com.gracerun.security.authentication.constant.LoginTypeConstant;
-import com.gracerun.security.authentication.constant.UserStatusConstant;
+import com.gracerun.security.authentication.bean.UserToken;
+import com.gracerun.security.authentication.constant.LoginConstant;
 import com.gracerun.security.authentication.util.PasswordUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.time.Duration;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
- * 自定义登录验证
+ * 用户登录
  *
- * @author adc
+ * @author Tom
  * @version 1.0.0
- * @date 2020-10-15
+ * @date 2023/9/7
  */
 @Slf4j
+@Logging
 @Component
 public class LoginAuthenticationProvider implements AuthenticationProvider {
 
@@ -37,14 +35,12 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
-        LoginRequest loginToken = (LoginRequest) authentication;
-        UserDetail userDetail = selectLoginUser(loginToken);
-
+        LoginRequest loginRequest = (LoginRequest) authentication;
+        UserToken userToken = selectUserDetail(loginRequest);
         boolean matches;
-        if (LoginTypeConstant.PASSWORD.equals(loginToken.getLoginType())) {
-            matches = PasswordUtil.matches(loginToken.getPassword(), userDetail.getPassword());
-        } else if (LoginTypeConstant.SMS_CODE.equals(loginToken.getLoginType())) {
+        if (LoginConstant.PASSWORD.equals(loginRequest.getLoginType())) {
+            matches = PasswordUtil.matches(loginRequest.getPassword(), userToken.getPassword());
+        } else if (LoginConstant.SMS_CODE.equals(loginRequest.getLoginType())) {
             matches = false;
         } else {
             throw new AuthenticationServiceException("登录类型错误");
@@ -52,16 +48,16 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 
         if (!matches) {
 //            incrementLoginFailAttempts(userContext.getUserId());
-            if (LoginTypeConstant.PASSWORD.equals(loginToken.getLoginType())) {
+            if (LoginConstant.PASSWORD.equals(loginRequest.getLoginType())) {
                 throw new BadCredentialsException("账号或密码错误");
-            } else if (LoginTypeConstant.SMS_CODE.equals(loginToken.getLoginType())) {
+            } else if (LoginConstant.SMS_CODE.equals(loginRequest.getLoginType())) {
                 throw new BadCredentialsException("短信验证码错误");
             }
         } else {
-            loginToken.setAuthenticated(true);
+            userToken.setAuthenticated(true);
 //            userService.clearCache(userContext.getUserId());
         }
-        return loginToken;
+        return userToken;
     }
 
     /**
@@ -140,19 +136,17 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 //            }
 //        }
 //    }
-
     @Override
     public boolean supports(Class<?> authentication) {
         return LoginRequest.class.isAssignableFrom(authentication);
     }
 
-    public UserDetail selectLoginUser(LoginRequest loginToken) {
-        UserDetail userContext = new UserDetail();
-        userContext.setUserId("testId");
-        userContext.setUsername("test");
-        userContext.setPassword(PasswordUtil.encode("test"));
-        userContext.setRoles(Arrays.asList("test4"));
-        loginToken.setDetails(userContext);
-        return userContext;
+    public UserToken selectUserDetail(LoginRequest loginToken) {
+        UserToken userToken = new UserToken(Arrays.asList(new SimpleGrantedAuthority("test4")));
+        userToken.setUserId("userI1010101");
+        userToken.setUsername("test");
+        userToken.setPassword(PasswordUtil.encode("test"));
+        return userToken;
     }
+
 }

@@ -1,8 +1,14 @@
 package com.gracerun.security.authentication.session;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gracerun.security.authentication.constant.LoginConstant;
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.web.http.CookieHttpSessionIdResolver;
 import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
 import org.springframework.session.web.http.HttpSessionIdResolver;
@@ -17,14 +23,21 @@ import java.util.concurrent.Executor;
  * @date 2023/9/6
  */
 @Configuration
-public class RedisSessionConfig {
+public class RedisSessionConfig implements BeanClassLoaderAware {
 
-    public static final String HEADER_X_AUTH_TOKEN = "x-auth-token";
+    private ClassLoader loader;
+
+    @Bean
+    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModules(SecurityJackson2Modules.getModules(this.loader));
+        return new GenericJackson2JsonRedisSerializer(mapper);
+    }
 
     @Bean
     public HttpSessionIdResolver httpSessionStrategy() {
         MultiHttpSessionIdResolver multiHttpSessionIdResolver = new MultiHttpSessionIdResolver();
-        multiHttpSessionIdResolver.add(new HeaderHttpSessionIdResolver(HEADER_X_AUTH_TOKEN));
+        multiHttpSessionIdResolver.add(new HeaderHttpSessionIdResolver(LoginConstant.HEADER_X_AUTH_TOKEN));
         multiHttpSessionIdResolver.add(new CookieHttpSessionIdResolver());
         return multiHttpSessionIdResolver;
     }
@@ -43,6 +56,11 @@ public class RedisSessionConfig {
         springSessionRedisTaskExecutor.setQueueCapacity(1000);
         springSessionRedisTaskExecutor.setThreadNamePrefix("Spring session redis executor thread: ");
         return springSessionRedisTaskExecutor;
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.loader = classLoader;
     }
 
 }

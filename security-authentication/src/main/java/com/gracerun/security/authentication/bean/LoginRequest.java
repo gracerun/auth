@@ -1,8 +1,7 @@
 package com.gracerun.security.authentication.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.gracerun.security.authentication.constant.LoginTypeConstant;
-import io.swagger.annotations.ApiModelProperty;
+import com.gracerun.security.authentication.constant.LoginConstant;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,24 +27,36 @@ import java.util.Collection;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginRequest extends AbstractAuthenticationToken {
 
-    @ApiModelProperty("登录类型 0:使用用户名/邮箱/手机号+密码登录,1:使用手机号+短信登录")
+    /**
+     * 登录类型 0:使用用户名/邮箱/手机号+密码登录,1:使用手机号+短信登录
+     */
     @NotBlank
     protected String loginType;
 
-    @ApiModelProperty("用户名/邮箱/手机号")
+    /**
+     * 用户名/邮箱/手机号
+     */
     @NotBlank
     protected String username;
 
-    @ApiModelProperty("密码")
+    /**
+     * 密码
+     */
     protected String password;
 
-    @ApiModelProperty("短信验证码")
+    /**
+     * 短信验证码
+     */
     protected String smsCode;
 
-    @ApiModelProperty("图片验证码")
+    /**
+     * 图片验证码
+     */
     protected String pcCode;
 
-    @ApiModelProperty("图片ID")
+    /**
+     * 图片ID
+     */
     protected String pcId;
 
     public LoginRequest() {
@@ -64,12 +75,19 @@ public class LoginRequest extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        if (LoginTypeConstant.PASSWORD.equals(loginType)) {
+        if (LoginConstant.PASSWORD.equals(loginType)) {
             return password;
-        } else if (LoginTypeConstant.SMS_CODE.equals(loginType)) {
+        } else if (LoginConstant.SMS_CODE.equals(loginType)) {
             return smsCode;
         } else {
             throw new PreAuthenticatedCredentialsNotFoundException("登录参数错误");
         }
     }
+
+    @Override
+    public void eraseCredentials() {
+        super.eraseCredentials();
+        this.password = null;
+    }
+
 }

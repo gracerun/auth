@@ -1,22 +1,21 @@
 package com.gracerun.security.authentication.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
  * 密码加密工具
- *
- * @author adc
+ * @author Tom
  * @version 1.0.0
- * @date 2020-08-25
+ * @date 2023/9/7
  */
 @Slf4j
 @Component
 public class PasswordUtil {
 
-    private static final PasswordEncoder ENCODER = new BCryptPasswordEncoder();
+    public static final PasswordEncoder ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     public static String encode(String password) {
         return ENCODER.encode(password);
